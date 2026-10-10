@@ -1,0 +1,4 @@
+# Glendale / Glendale Meadows Community Association
+# Public information site — no member-only or staging paths are served.
+User-agent: *
+Allow: /

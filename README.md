@@ -14,6 +14,12 @@ A responsive website redesign for the [Glendale / Glendale Meadows Community Ass
 - Node.js 24 and npm (the Docker images use Node 24).
 - Docker with the Compose plugin for container workflows.
 
+## Deploy with GitHub and Render
+
+Connect this repository to Render as a Blueprint; Render reads the root [render.yaml](render.yaml), builds with `npm ci && npm run build`, and publishes `dist/` as a static site. The Blueprint includes a fallback rewrite for client-side routes and enables deploys from commits to the connected branch. No application server or port configuration is needed for the Render static site.
+
+To create it, push the repository to GitHub, then choose **New → Blueprint** in Render and select the repository. Render will show the Blueprint configuration before creating the site. Configure a custom domain in the Render dashboard if needed.
+
 ## Local development
 
 ```bash

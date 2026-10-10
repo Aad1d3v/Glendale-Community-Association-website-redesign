@@ -1,0 +1,64 @@
+# Docker Compose for the GGMCA website.
+#
+#   docker compose up --build -d          # production image on http://localhost:8080
+#   docker compose --profile dev up dev   # Vite dev server with hot reload (port 5173)
+#
+# Copy .env.example to .env and edit it to change ports or contact details.
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_SITE_URL: ${VITE_SITE_URL:-https://myglendale.ca}
+        VITE_SITE_NAME: ${VITE_SITE_NAME:-Glendale / Glendale Meadows Community Association}
+        VITE_CONTACT_EMAIL: ${VITE_CONTACT_EMAIL:-info@myglendale.ca}
+        VITE_CONTACT_PHONE: ${VITE_CONTACT_PHONE:-403-242-2110}
+        VITE_ADDRESS: ${VITE_ADDRESS:-4500 25 Avenue SW, Calgary, AB T3E 0M1}
+        VITE_SOCIAL_FACEBOOK: ${VITE_SOCIAL_FACEBOOK:-}
+        VITE_SOCIAL_INSTAGRAM: ${VITE_SOCIAL_INSTAGRAM:-}
+        VITE_SOCIAL_X: ${VITE_SOCIAL_X:-}
+    image: ggmca-website:latest
+    container_name: ggmca-web
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8080}:8080"
+    environment:
+      NODE_ENV: production
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:8080/healthz"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  dev:
+    profiles: ["dev"]
+    image: node:24-alpine
+    container_name: ggmca-dev
+    working_dir: /app
+    command: sh -c "npm ci --no-audit --no-fund && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "${DEV_PORT:-5173}:5173"
+    environment:
+      NODE_ENV: development
+      VITE_SITE_URL: ${VITE_SITE_URL:-http://localhost:5173}
+      VITE_SITE_NAME: ${VITE_SITE_NAME:-Glendale / Glendale Meadows Community Association}
+      VITE_CONTACT_EMAIL: ${VITE_CONTACT_EMAIL:-info@myglendale.ca}
+      VITE_CONTACT_PHONE: ${VITE_CONTACT_PHONE:-403-242-2110}
+      VITE_ADDRESS: ${VITE_ADDRESS:-4500 25 Avenue SW, Calgary, AB T3E 0M1}
+      VITE_SOCIAL_FACEBOOK: ${VITE_SOCIAL_FACEBOOK:-}
+      VITE_SOCIAL_INSTAGRAM: ${VITE_SOCIAL_INSTAGRAM:-}
+      VITE_SOCIAL_X: ${VITE_SOCIAL_X:-}
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+
+volumes:
+  node_modules:
